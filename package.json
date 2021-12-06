@@ -1,0 +1,31 @@
+{
+  "name": "honeycomb-support",
+  "version": "1.0.0",
+  "description": "Helpful stuff for adding honeycomb to a nodejs app",
+  "main": "index.js",
+  "repository": "git@github.com:geckoboard/js-honeycomb-support.git",
+  "author": "Glen Mailer <glen@geckoboard.com>",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint --max-warnings 0 .",
+    "typecheck": "tsc",
+    "test": "jest"
+  },
+  "peerDependencies": {
+    "honeycomb-beeline": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/shimmer": "^1.0.2",
+    "eslint": "^8.3.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "honeycomb-beeline": "^3.0.0",
+    "jest": "^27.4.3",
+    "prettier": "^2.5.0",
+    "selfsigned": "^1.10.11",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "shimmer": "^1.2.1"
+  }
+}

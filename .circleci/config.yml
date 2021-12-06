@@ -1,0 +1,43 @@
+version: 2.1
+
+workflows:
+  git-commit-workflow:
+    jobs:
+      - checks
+
+executors:
+  node:
+    docker:
+      - image: circleci/node:12.22.1
+    # Everything is faster in RAM!
+    # https://support.circleci.com/hc/en-us/articles/360054908812-Speed-up-steps-using-a-RAM-disk
+    working_directory: /mnt/ramdisk/project
+
+commands:
+  install-deps:
+    steps:
+      - restore_cache:
+          keys:
+            - v1-yarn-deps-{{ checksum "yarn.lock" }}
+            - v1-yarn-deps
+      - run: yarn install --frozen-lockfile
+      - save_cache:
+          key: v1-yarn-deps-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+
+jobs:
+  checks:
+    executor: node
+    steps:
+      - checkout
+      - install-deps
+      - run: yarn test # TODO: junit & codecov
+      - run:
+          command: yarn lint # TODO: junit
+          when: always
+      - run:
+          command: yarn typecheck # TODO: junit
+          when: always
+      - store_test_results:
+          path: test-reports
