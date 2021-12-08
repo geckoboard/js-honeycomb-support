@@ -1,4 +1,4 @@
-/* eslint-env node, jest */
+/* eslint-env jest */
 const net = require('net');
 const http = require('http');
 const https = require('https');

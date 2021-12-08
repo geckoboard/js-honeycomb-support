@@ -8,7 +8,6 @@
  *
  * Intended to be used instead of the default automatic instrumentation
  */
-/* eslint-env node */
 const http = require('http');
 const https = require('https');
 const url = require('url');

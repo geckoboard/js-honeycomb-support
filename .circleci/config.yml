@@ -43,6 +43,7 @@ jobs:
           when: always
       - run:
           command: yarn test --coverage --testResultsProcessor jest-junit
+          when: always
           environment:
             JEST_JUNIT_OUTPUT_FILE: test-reports/jest.xml
       - codecov/upload
