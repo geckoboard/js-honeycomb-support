@@ -12,7 +12,7 @@
     "test": "jest"
   },
   "peerDependencies": {
-    "honeycomb-beeline": "^3.0.0"
+    "honeycomb-beeline": "^3.1.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
@@ -20,7 +20,7 @@
     "eslint": "^8.3.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "honeycomb-beeline": "^3.0.0",
+    "honeycomb-beeline": "^3.1.0",
     "jest": "^27.4.3",
     "prettier": "^2.5.0",
     "selfsigned": "^1.10.11",

@@ -27,7 +27,6 @@ const ignoredResponseHeaders = new Set([
 ]);
 
 /**
- *
  * @param {http.IncomingHttpHeaders} headers
  * @returns {Record<string, unknown>}
  */
@@ -45,16 +44,32 @@ function responseHeaderFields(headers) {
 }
 
 const wrapped = Symbol('geckoboard-honeycomb-http');
+/**
+ * @param {{[k: keyof any]: unknown}} mod
+ * @returns {boolean}
+ */
+function alreadyWrapped(mod) {
+  if (mod[wrapped]) {
+    return true;
+  }
+  mod[wrapped] = true;
+  return false;
+}
 
 /**
  * @template {typeof http | typeof https} Module
  * @param {Module} mod
  */
 function instrumentHTTP(mod) {
+  // Avoid double-wrapping in case instrumentation is applied multiple times
+  if (alreadyWrapped(mod)) {
+    return;
+  }
+
   shimmer.wrap(mod, 'get', _original => {
     // we have to replace http.get since it references request through
     // a closure (so we can't replace the value it uses..)
-    // @ts-ignore
+    // @ts-ignore - typescript isn't convinced we're just delegating
     return (_url, options, cb) => {
       const req = mod.request.call(mod, _url, options, cb);
       req.end();
@@ -63,17 +78,10 @@ function instrumentHTTP(mod) {
   });
 
   shimmer.wrap(mod, 'request', original => {
-    // Avoid double-wrapping in case instrumentation is applied multiple times
-    if (original.__instrumented === wrapped) {
-      return original;
-    }
-
-    /**
-     * @type {typeof original}
-     */
-    function request(_url, options, cb) {
+    // @ts-ignore - typescript isn't convinced we're just delegating
+    return (_url, options, cb) => {
       if (!beeline.traceActive()) {
-        return original.call(this, _url, options, cb);
+        return original.call(mod, _url, options, cb);
       }
 
       return beeline.startAsyncSpan(
@@ -82,7 +90,7 @@ function instrumentHTTP(mod) {
           'meta.type': 'http_client',
         },
         span => {
-          const req = original.call(this, _url, options, cb);
+          const req = original.call(mod, _url, options, cb);
           // TODO: respect configured custom propagation hooks
           req.setHeader(
             beeline.honeycomb.TRACE_HTTP_HEADER,
@@ -111,9 +119,7 @@ function instrumentHTTP(mod) {
           return req;
         },
       );
-    }
-    request.__instrumented = wrapped;
-    return request;
+    };
   });
 }
 

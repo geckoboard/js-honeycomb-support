@@ -2,6 +2,8 @@
 const net = require('net');
 const http = require('http');
 const https = require('https');
+const { URL } = require('url');
+
 const selfsigned = require('selfsigned');
 const tracker = require('honeycomb-beeline/lib/async_tracker');
 
@@ -14,20 +16,29 @@ const beeline = require('../index')('tests', '?', 'mock');
 // Ensure there's a root trace for spans to be attached to
 // we won't bother trying to end this trace, it wouldn't go anywhere anyway
 beeline.startTrace({ name: 'test suite' });
-// and clear it's events before every test
+// and record/clear honeycomb events before every test
+/** @type {Record<string, unknown>[]} */
+let events;
 beforeEach(() => {
-  beeline._apiForTesting().sentEvents = [];
+  events = beeline._apiForTesting().sentEvents = [];
 });
 
 require('./http')();
 
-let server, port;
+/** @type {http.Server} */
+let server;
+/** @type {number} */
+let port;
 
 // Can be used as an option to http.request to force connections onto the test server
 function createConnection() {
   return net.createConnection({ host: 'localhost', port });
 }
 
+/**
+ * @param {http.IncomingMessage} req
+ * @param {http.ServerResponse} res
+ */
 function handler(req, res) {
   const trace = beeline.honeycomb.TRACE_HTTP_HEADER.toLowerCase();
   res.setHeader('received-trace-header', req.headers[trace] || 'MISSING!');
@@ -41,11 +52,11 @@ function handler(req, res) {
 
 beforeAll(async () => {
   server = http.createServer(handler);
-  port = await new Promise(resolve => {
-    server.listen(0, 'localhost', () => {
-      resolve(server.address().port);
-    });
-  });
+  await new Promise(done => server.listen(0, 'localhost', () => done(0)));
+  const addr = server.address();
+  if (addr && typeof addr == 'object') {
+    port = addr.port;
+  }
 });
 
 afterAll(() => {
@@ -58,7 +69,7 @@ describe('argument permutations', () => {
       http.get({ hostname: 'localhost', port }).on('close', resolve);
     });
 
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',
@@ -76,7 +87,7 @@ describe('argument permutations', () => {
       http.get({ hostname: 'localhost', port }, resolve);
     });
 
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',
@@ -92,7 +103,7 @@ describe('argument permutations', () => {
     await new Promise(resolve => {
       http.get(`http://localhost:${port}`).on('close', resolve);
     });
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',
@@ -110,7 +121,7 @@ describe('argument permutations', () => {
         .on('close', resolve);
     });
 
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',
@@ -126,7 +137,7 @@ describe('argument permutations', () => {
       http.get(`http://localhost:${port}`, resolve);
     });
 
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',
@@ -154,7 +165,7 @@ describe('argument permutations', () => {
         )
         .write('body');
     });
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',
@@ -172,7 +183,7 @@ describe('argument permutations', () => {
     await new Promise(resolve => {
       http.get(new URL(`http://localhost:${port}`)).on('close', resolve);
     });
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'request.url': `http://localhost:${port}/`,
@@ -189,7 +200,7 @@ describe('argument permutations', () => {
         .on('close', resolve);
     });
 
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',
@@ -208,7 +219,7 @@ describe('argument permutations', () => {
       http.get(new URL(`http://localhost:${port}`), resolve);
     });
 
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',
@@ -230,7 +241,7 @@ describe('argument permutations', () => {
         resolve,
       );
     });
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',
@@ -253,7 +264,7 @@ test('url as a string', async () => {
     'received-trace-header',
     '1;trace_id=0,parent_id=51001,context=e30=',
   );
-  expect(beeline._apiForTesting().sentEvents).toMatchObject([
+  expect(events).toMatchObject([
     {
       name: 'http_client',
       'meta.type': 'http_client',
@@ -275,7 +286,7 @@ test('url as options', async () => {
     'received-trace-header',
     '1;trace_id=0,parent_id=51001,context=e30=',
   );
-  expect(beeline._apiForTesting().sentEvents).toMatchObject([
+  expect(events).toMatchObject([
     {
       name: 'http_client',
       'meta.type': 'http_client',
@@ -306,7 +317,7 @@ test('url as options with pathname and query', async () => {
     'received-trace-header',
     '1;trace_id=0,parent_id=51001,context=e30=',
   );
-  expect(beeline._apiForTesting().sentEvents).toMatchObject([
+  expect(events).toMatchObject([
     {
       name: 'http_client',
       'meta.type': 'http_client',
@@ -329,7 +340,7 @@ test('correct response context', async () => {
     'received-trace-header',
     '1;trace_id=0,parent_id=51001,context=e30=',
   );
-  expect(beeline._apiForTesting().sentEvents).toMatchObject([
+  expect(events).toMatchObject([
     {
       'meta.type': 'http_client',
       'response.http_version': res.httpVersion,
@@ -339,7 +350,7 @@ test('correct response context', async () => {
       'response.header.content-encoding': res.headers['content-encoding'],
     },
   ]);
-  const event = beeline._apiForTesting().sentEvents[0];
+  const event = events[0];
   expect(event['response.header.x-frame-options']).toBeUndefined();
 });
 
@@ -354,7 +365,7 @@ test('url + options', async () => {
     'received-trace-header',
     '1;trace_id=0,parent_id=51001,context=e30=',
   );
-  expect(beeline._apiForTesting().sentEvents).toMatchObject([
+  expect(events).toMatchObject([
     {
       name: 'http_client',
       'meta.type': 'http_client',
@@ -373,16 +384,22 @@ test('url + options, without active trace', async () => {
     http.get('http://localhost:80', { hostname: 'localhost', port }, resolve);
   });
   expect(res.headers).toHaveProperty('received-trace-header', 'MISSING!');
-  expect(beeline._apiForTesting().sentEvents).toEqual([]);
+  expect(events).toEqual([]);
 });
 
 describe('https', () => {
-  let tlsServer, tlsPort;
+  /** @type {https.Server} */
+  let tlsServer;
+  /** @type {number} */
+  let tlsPort;
   beforeAll(async () => {
     const { private: key, cert } = selfsigned.generate(null, { days: 1 });
     tlsServer = https.createServer({ key, cert }, handler);
-    await new Promise(resolve => tlsServer.listen(0, 'localhost', resolve));
-    tlsPort = tlsServer.address().port;
+    await new Promise(done => tlsServer.listen(0, 'localhost', () => done(0)));
+    const addr = tlsServer.address();
+    if (addr && typeof addr == 'object') {
+      tlsPort = addr.port;
+    }
   });
   afterAll(() => {
     tlsServer.close();
@@ -403,7 +420,7 @@ describe('https', () => {
       'received-trace-header',
       '1;trace_id=0,parent_id=51001,context=e30=',
     );
-    expect(beeline._apiForTesting().sentEvents).toMatchObject([
+    expect(events).toMatchObject([
       {
         name: 'http_client',
         'meta.type': 'http_client',

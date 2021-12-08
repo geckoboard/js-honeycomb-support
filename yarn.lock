@@ -521,18 +521,17 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/api/-/api-1.0.3.tgz#13a12ae9e05c2a782f7b5e84c3cbfda4225eaf80"
   integrity sha512-puWxACExDe9nxbBB3lOymQFrLYml2dVOrd7USiVRnSbgXE+KwBu+HxFvxrzfqsiSda9IWsXJG1ef7C1O2/GmKQ==
 
-"@opentelemetry/core@^0.25.0":
-  version "0.25.0"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-0.25.0.tgz#44fae79865483be5dacdf72f99db9f1a603c4bae"
-  integrity sha512-8OTWF4vfCENU112XB5ElLqf0eq/FhsY0SBvvY65vB3+fbZ2Oi+CPsRASrUZWGtC9MJ5rK2lBlY+/jI4a/NPPBg==
+"@opentelemetry/core@^1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-1.0.1.tgz#5e08cef21946fdea7952f544e8f667f6d2a0ded8"
+  integrity sha512-90nQ2X6b/8X+xjcLDBYKooAcOsIlwLRYm+1VsxcX5cHl6V4CSVmDpBreQSDH/A21SqROzapk6813008SatmPpQ==
   dependencies:
-    "@opentelemetry/semantic-conventions" "0.25.0"
-    semver "^7.3.5"
+    "@opentelemetry/semantic-conventions" "1.0.1"
 
-"@opentelemetry/semantic-conventions@0.25.0":
-  version "0.25.0"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-0.25.0.tgz#c100d146957949608c6b9614267ae044cdcb5315"
-  integrity sha512-V3N+MDBiv0TUlorbgiSqk6CvcP876CYUk/41Tg6s8OIyvniTwprE6vPvFQayuABiVkGlHOxv1Mlvp0w4qNdnVg==
+"@opentelemetry/semantic-conventions@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.0.1.tgz#9349c3860a53468fa2108b5df09aa843f22dbf94"
+  integrity sha512-7XU1sfQ8uCVcXLxtAHA8r3qaLJ2oq7sKtEwzZhzuEXqYmjW+n+J4yM3kNo0HQo3Xp1eUe47UM6Wy6yuAvIyllg==
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
@@ -620,7 +619,7 @@
     jest-diff "^27.0.0"
     pretty-format "^27.0.0"
 
-"@types/node@*", "@types/node@^16.3.2":
+"@types/node@*":
   version "16.11.11"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.11.tgz#6ea7342dfb379ea1210835bada87b3c512120234"
   integrity sha512-KB0sixD67CeecHC33MYn+eYARkqTheIRNuu97y2XMjR7Wu3XibO1vaY6VBV6O/a89SPI81cEUIYT87UqUWlZNw==
@@ -1613,17 +1612,16 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-honeycomb-beeline@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/honeycomb-beeline/-/honeycomb-beeline-3.0.0.tgz#355b1cae07731ce8a1f6b261c2b9cf45e6fbe099"
-  integrity sha512-G0rf58LDcbICuJer549dFdZeM2bUE53RkR1HoLau43chZJ1mWNUdJQ15Ud96A5hsMkl6mBl0WOTuH16d4GOYGw==
+honeycomb-beeline@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/honeycomb-beeline/-/honeycomb-beeline-3.1.0.tgz#f0a602574f050b8d28b6ec8fedded0452610fcaf"
+  integrity sha512-nCBfvblMLpQ9PeiR36F7jSSkkUg0JFd2MWTVNy8R9qoowXhGmTWjHwU88K1wWtKQm0uzEaBf0wxi0KsEviR4wg==
   dependencies:
     "@opentelemetry/api" "^1.0.2"
-    "@opentelemetry/core" "^0.25.0"
-    "@types/node" "^16.3.2"
+    "@opentelemetry/core" "^1.0.0"
     array-flatten "^3.0.0"
     debug "^4.2.0"
-    libhoney "^2.2.1"
+    libhoney "^3.0.0"
     on-headers "^1.0.2"
     shimmer "^1.2.1"
 
@@ -2358,10 +2356,10 @@ levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-libhoney@^2.2.1:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/libhoney/-/libhoney-2.3.3.tgz#e2b06ae6afbb1c4c27bbbafab663ac4528466c65"
-  integrity sha512-WfujgzJjIxN4ZwRwX7iO1LFvzB9x+M7MGEN+FsPrCjTti+cA3CMYR400ElqRO84/ZwEphjiJrO+yqvVceu4N6Q==
+libhoney@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/libhoney/-/libhoney-3.0.0.tgz#33cf6b24f54e15b8ad72a0d6a214805479e13099"
+  integrity sha512-aAvZblw2ad2iRXrLNk/CnOgQG2Zpt4uuCcVjeC+n/GMsMQRKOGxZ7whI7N4b0oa2aFjsNUQgfwv+xqVMUnO+Mg==
   dependencies:
     superagent "^6.1.0"
     superagent-proxy "^3.0.0"
@@ -2859,7 +2857,7 @@ semver@^6.0.0, semver@^6.1.0, semver@^6.3.0:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
   integrity sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
 
-semver@^7.2.1, semver@^7.3.2, semver@^7.3.5:
+semver@^7.2.1, semver@^7.3.2:
   version "7.3.5"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.5.tgz#0b621c879348d8998e4b0e4be94b3f12e6018ef7"
   integrity sha512-PoeGJYh8HK4BTO/a9Tf6ZG3veo/A7ZVsYrSA6J8ny9nb3B1VrpkuN+z9OE5wfE5p6H4LchYZsegiQgbJD94ZFQ==

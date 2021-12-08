@@ -20,9 +20,7 @@ const instrumentHTTP = require('./instrumentation/http');
  * @returns {beeline.Beeline}
  */
 module.exports = function setup(name, gitSha, options) {
-  /**
-   * @type {beeline.BeelineOpts & {apiHost?: string}}
-   */
+  /** @type {beeline.BeelineOpts} */
   const config = {
     serviceName: name,
     enabledInstrumentations: ['express', 'child_process'],
@@ -41,9 +39,7 @@ module.exports = function setup(name, gitSha, options) {
     }
   }
 
-  /**
-   * @param {{ data: Record<string, unknown>}} ev
-   */
+  /** @param {{ data: Record<string, unknown>}} ev */
   function presendHook(ev) {
     ev.data.app_sha = gitSha;
     Object.entries(globalMetadata).forEach(([k, v]) => {
