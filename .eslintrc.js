@@ -3,11 +3,11 @@ module.exports = {
   env: {
     commonjs: true,
     node: true,
-    es2021: true,
+    es2017: true,
   },
   extends: 'eslint:recommended',
   parserOptions: {
-    ecmaVersion: 13,
+    ecmaVersion: 2019,
   },
   rules: {
     'no-unused-vars': [
