@@ -9,6 +9,7 @@ const instrumentHTTP = require('./instrumentation/http');
  * @property {string} TracingDataset
  * @property {number} DesiredSampleRate
  * @property {Record<string, unknown> | undefined} GlobalMetadata
+ * @property {(ev: { data: Record<string, unknown> }) => void | undefined} [presendHook]
  */
 
 /**
@@ -33,20 +34,21 @@ module.exports = function setup(name, gitSha, options) {
     config.writeKey = options.APIKey;
     config.dataset = options.TracingDataset;
     config.sampleRate = options.DesiredSampleRate;
+    /** @param {{ data: Record<string, unknown>}} ev */
+    config.presendHook = ev => {
+      ev.data.app_sha = gitSha;
+      Object.entries(globalMetadata).forEach(([k, v]) => {
+        ev.data[k] = v;
+      });
+      if (options.presendHook) {
+        options.presendHook(ev);
+      }
+    };
     Object.assign(globalMetadata, options.GlobalMetadata);
     if (options.APIHost) {
       config.apiHost = options.APIHost;
     }
   }
-
-  /** @param {{ data: Record<string, unknown>}} ev */
-  function presendHook(ev) {
-    ev.data.app_sha = gitSha;
-    Object.entries(globalMetadata).forEach(([k, v]) => {
-      ev.data[k] = v;
-    });
-  }
-  config.presendHook = presendHook;
 
   // Apply our custom instrumentation before configuring the beeline
   instrumentHTTP();
