@@ -27,14 +27,6 @@ module.exports = function setup(name, gitSha, options) {
     enabledInstrumentations: ['express', 'child_process'],
   };
 
-  /** @param {{ data: Record<string, unknown>}} ev */
-  function defaultPresendHook(ev) {
-    ev.data.app_sha = gitSha;
-    Object.entries(globalMetadata).forEach(([k, v]) => {
-      ev.data[k] = v;
-    });
-  }
-
   const globalMetadata = {};
   if (options == 'mock') {
     config.impl = 'mock';
@@ -42,7 +34,16 @@ module.exports = function setup(name, gitSha, options) {
     config.writeKey = options.APIKey;
     config.dataset = options.TracingDataset;
     config.sampleRate = options.DesiredSampleRate;
-    config.presendHook = options.presendHook || defaultPresendHook;
+    /** @param {{ data: Record<string, unknown>}} ev */
+    config.presendHook = ev => {
+      ev.data.app_sha = gitSha;
+      Object.entries(globalMetadata).forEach(([k, v]) => {
+        ev.data[k] = v;
+      });
+      if (options.presendHook) {
+        options.presendHook(ev);
+      }
+    };
     Object.assign(globalMetadata, options.GlobalMetadata);
     if (options.APIHost) {
       config.apiHost = options.APIHost;
