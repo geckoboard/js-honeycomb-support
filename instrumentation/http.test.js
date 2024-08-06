@@ -41,12 +41,26 @@ function createConnection() {
  */
 function handler(req, res) {
   const trace = beeline.honeycomb.TRACE_HTTP_HEADER.toLowerCase();
+  let withError = false;
+  if (req.url) {
+    const urlObject = new URL(req.url, `http://${req.headers.host}`);
+    if (urlObject.searchParams.get('with_error')) {
+      withError = true;
+    }
+  }
+
   res.setHeader('received-trace-header', req.headers[trace] || 'MISSING!');
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Content-Encoding', 'gzip');
-  res.setHeader('Content-Length', '2');
   res.setHeader('X-Frame-Options', 'DENY');
-  res.write('ok');
+  if (withError) {
+    res.setHeader('Content-Length', '23');
+    res.statusCode = 400;
+    res.write('{"error":"Bad Request"}');
+  } else {
+    res.setHeader('Content-Length', '2');
+    res.write('ok');
+  }
   res.end();
 }
 
@@ -385,6 +399,35 @@ test('url + options, without active trace', async () => {
   });
   expect(res.headers).toHaveProperty('received-trace-header', 'MISSING!');
   expect(events).toEqual([]);
+});
+
+test('400 response', async () => {
+  tracker.setTracked(newMockContext());
+
+  const res = await new Promise(resolve => {
+    http.get(
+      'http://localhost:80?with_error=true',
+      { hostname: 'localhost', port },
+      resolve,
+    );
+  });
+
+  expect(res.headers).toHaveProperty(
+    'received-trace-header',
+    '1;trace_id=0,parent_id=51001,context=e30=',
+  );
+  expect(events).toMatchObject([
+    {
+      name: 'http_client',
+      'meta.type': 'http_client',
+      'request.scheme': 'http',
+      'request.method': `GET`,
+      'request.path': `/`,
+      'request.host': `localhost`,
+      'request.url': `http://localhost:${port}/?with_error=true`,
+      'response.body': '{"error":"Bad Request"}',
+    },
+  ]);
 });
 
 describe('https', () => {
