@@ -108,26 +108,35 @@ function instrumentHTTP(mod) {
             'request.scheme': u.protocol.slice(0, -1),
           });
           req.once('response', res => {
+            span.addContext({
+              'response.http_version': res.httpVersion,
+              'response.status_code': res.statusCode,
+              ...responseHeaderFields(res.headers),
+            });
+
             let responseBody = '';
             res.on('data', chunk => {
               responseBody += chunk;
             });
 
             res.on('end', () => {
-              /** @type {Object.<string, any>} */
-              const context = {
-                'response.http_version': res.httpVersion,
-                'response.status_code': res.statusCode,
-                ...responseHeaderFields(res.headers),
-              };
-
               if (res.statusCode && res.statusCode >= 400) {
-                context['response.body'] = responseBody;
+                if (responseBody.length > 1000) {
+                  responseBody = responseBody.slice(0, 1000);
+                }
+                span.addContext({ 'response.body': responseBody });
               }
 
-              span.addContext(context);
               beeline.finishSpan(span, 'request');
             });
+          });
+
+          req.once('error', err => {
+            span.addContext({
+              error: err.message,
+              'error.stack': err.stack,
+            });
+            beeline.finishSpan(span, 'request');
           });
           return req;
         },

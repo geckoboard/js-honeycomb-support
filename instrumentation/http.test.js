@@ -408,7 +408,18 @@ test('400 response', async () => {
     http.get(
       'http://localhost:80?with_error=true',
       { hostname: 'localhost', port },
-      resolve,
+      response => {
+        let data = '';
+        response.on('data', chunk => {
+          data += chunk;
+        });
+
+        response.on('end', () => {
+          // ensure the data is still readable after adding instrumentation
+          expect(data).toEqual('{"error":"Bad Request"}');
+          resolve(response);
+        });
+      },
     );
   });
 
