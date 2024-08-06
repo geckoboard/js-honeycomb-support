@@ -113,6 +113,29 @@ function instrumentHTTP(mod) {
               'response.status_code': res.statusCode,
               ...responseHeaderFields(res.headers),
             });
+
+            let responseBody = '';
+            res.on('data', chunk => {
+              responseBody += chunk;
+            });
+
+            res.on('end', () => {
+              if (res.statusCode && res.statusCode >= 400) {
+                if (responseBody.length > 1000) {
+                  responseBody = responseBody.slice(0, 1000);
+                }
+                span.addContext({ 'response.body': responseBody });
+              }
+
+              beeline.finishSpan(span, 'request');
+            });
+          });
+
+          req.once('error', err => {
+            span.addContext({
+              error: err.message,
+              'error.stack': err.stack,
+            });
             beeline.finishSpan(span, 'request');
           });
           return req;
