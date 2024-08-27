@@ -15,12 +15,13 @@ const instrumentHTTP = require('./instrumentation/http');
 /**
  * Configure honeycomb with our standard preferences
  * @param {string} name the name of the service
+ * @param {string | "http"} process the type of process (e.g. "http" or "worker")
  * @param {string} gitSha the git sha representing the version of the service
  * @param {Options | "mock"} options configuration options, or the literal "mock" to use the mock backend
  *
  * @returns {beeline.Beeline}
  */
-module.exports = function setup(name, gitSha, options) {
+module.exports = function setup(name, gitSha, options, process = 'http') {
   /** @type {beeline.BeelineOpts} */
   const config = {
     serviceName: name,
@@ -37,6 +38,7 @@ module.exports = function setup(name, gitSha, options) {
     /** @param {{ data: Record<string, unknown>}} ev */
     config.presendHook = ev => {
       ev.data.app_sha = gitSha;
+      ev.data['service.process'] = process;
       Object.entries(globalMetadata).forEach(([k, v]) => {
         ev.data[k] = v;
       });

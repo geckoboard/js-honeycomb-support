@@ -8,11 +8,13 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint --max-warnings 0 .",
+    "lint-ci": "bash -o pipefail -c 'eslint --format junit --ext .js,.ts ./instrumentation | tee test-reports/eslint.xml'",
     "typecheck": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "test-ci": "JEST_JUNIT_OUTPUT_FILE=test-reports/jest.xml jest --maxWorkers 4 --coverage --testResultsProcessor jest-junit"
   },
   "peerDependencies": {
-    "honeycomb-beeline": "^3.1.0"
+    "honeycomb-beeline": "^3.3.0"
   },
   "devDependencies": {
     "@types/body": "^5.1.1",
@@ -22,7 +24,7 @@
     "eslint": "^8.3.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "honeycomb-beeline": "^3.1.0",
+    "honeycomb-beeline": "^3.3.0",
     "jest": "^27.4.3",
     "jest-junit": "^13.0.0",
     "prettier": "^2.5.0",
