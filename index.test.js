@@ -49,7 +49,7 @@ it('configures honeycomb for sending events', async () => {
       global: 'fields',
     },
     DesiredSampleRate: 1,
-    TracingDataset: 'testing.traces',
+    TracingDataset: '',
   });
 
   const callP = new Promise(resolve => {
@@ -61,7 +61,7 @@ it('configures honeycomb for sending events', async () => {
 
   const call = await callP;
 
-  expect(call.path).toMatch(/\/testing\.traces$/);
+  expect(call.path).toMatch(/\/1\/batch\/testing$/);
   expect(call.headers).toHaveProperty('x-honeycomb-team', 'keystuff');
   expect(call.body).toMatchObject([
     {
