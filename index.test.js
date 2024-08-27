@@ -42,7 +42,7 @@ afterAll(() => {
 });
 
 it('configures honeycomb for sending events', async () => {
-  const beeline = setup('testing', 'beefdad', {
+  const beeline = setup('testing', 'http', 'beefdad', {
     APIHost: address,
     APIKey: 'keystuff',
     GlobalMetadata: {
@@ -70,6 +70,7 @@ it('configures honeycomb for sending events', async () => {
         'trace.trace_id': 'trace1',
         'trace.parent_id': 'parent1',
         service_name: 'testing',
+        'service.process': 'http',
         app_sha: 'beefdad',
         global: 'fields',
       },

@@ -12,7 +12,7 @@ function newMockContext() {
 }
 
 // Setup honeycomb in mock-mode
-const beeline = require('../index')('tests', '?', 'mock');
+const beeline = require('../index')('tests','http', '?', 'mock');
 // Ensure there's a root trace for spans to be attached to
 // we won't bother trying to end this trace, it wouldn't go anywhere anyway
 beeline.startTrace({ name: 'test suite' });
