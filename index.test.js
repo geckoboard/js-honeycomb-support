@@ -42,7 +42,7 @@ afterAll(() => {
 });
 
 it('configures honeycomb for sending events', async () => {
-  const beeline = setup('testing', 'http', 'beefdad', {
+  const beeline = setup('testing', 'beefdad', {
     APIHost: address,
     APIKey: 'keystuff',
     GlobalMetadata: {

@@ -21,7 +21,7 @@ const instrumentHTTP = require('./instrumentation/http');
  *
  * @returns {beeline.Beeline}
  */
-module.exports = function setup(name, process = 'http', gitSha, options) {
+module.exports = function setup(name, gitSha, options, process = 'http') {
   /** @type {beeline.BeelineOpts} */
   const config = {
     serviceName: name,
