@@ -32,7 +32,14 @@ module.exports = function setup(name, gitSha, options, process = 'http') {
   if (options == 'mock') {
     config.impl = 'mock';
   } else {
-    config.writeKey = options.APIKey;
+    // config.WriteKey must be set to a non-empty value, but when we use Refinery to aggregate all of our events
+    // and send them using its own WriteKey, we don't need to specify app-specific WriteKeys.
+    // The `beeline-go` package sets a default WriteKey (which is invalid as far as Honeycomb goes)
+    // to allow the tracing library to be initialized.
+    // https://github.com/honeycombio/beeline-go/blob/56c4f55d6efec3d417ba32748718fefd2e362a0f/beeline.go#L22
+    const defaultWriteKey = 'apikey-placeholder';
+
+    config.writeKey = options.APIKey || defaultWriteKey;
     config.dataset = options.TracingDataset;
     config.sampleRate = options.DesiredSampleRate;
     /** @param {{ data: Record<string, unknown>}} ev */
