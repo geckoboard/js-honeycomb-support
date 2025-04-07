@@ -11,7 +11,7 @@
     "lint-ci": "bash -o pipefail -c 'eslint --format junit --ext .js,.ts ./instrumentation | tee test-reports/eslint.xml'",
     "typecheck": "tsc",
     "test": "jest",
-    "test-ci": "JEST_JUNIT_OUTPUT_FILE=test-reports/jest.xml jest --maxWorkers 4 --coverage --testResultsProcessor jest-junit"
+    "test-ci": "jest --maxWorkers 2 --coverage --testResultsProcessor jest-junit"
   },
   "peerDependencies": {
     "honeycomb-beeline": "^3.3.0"

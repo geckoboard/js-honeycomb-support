@@ -15,13 +15,13 @@ const instrumentHTTP = require('./instrumentation/http');
 /**
  * Configure honeycomb with our standard preferences
  * @param {string} name the name of the service
- * @param {string | "http"} process the type of process (e.g. "http" or "worker")
  * @param {string} gitSha the git sha representing the version of the service
  * @param {Options | "mock"} options configuration options, or the literal "mock" to use the mock backend
+ * @param {string | "http"} processType the type of process (e.g. "http" or "worker")
  *
  * @returns {beeline.Beeline}
  */
-module.exports = function setup(name, gitSha, options, process = 'http') {
+module.exports = function setup(name, gitSha, options, processType = 'http') {
   /** @type {beeline.BeelineOpts} */
   const config = {
     serviceName: name,
@@ -45,10 +45,14 @@ module.exports = function setup(name, gitSha, options, process = 'http') {
     /** @param {{ data: Record<string, unknown>}} ev */
     config.presendHook = ev => {
       ev.data.app_sha = gitSha;
-      ev.data['service.process'] = process;
+      ev.data['service.process'] = processType;
+      ev.data['process.uptime_s'] = Math.round(process.uptime());
+
       Object.entries(globalMetadata).forEach(([k, v]) => {
         ev.data[k] = v;
       });
+      Object.assign(ev.data, processInfo);
+
       if (options.presendHook) {
         options.presendHook(ev);
       }
@@ -64,3 +68,22 @@ module.exports = function setup(name, gitSha, options, process = 'http') {
 
   return beeline(config);
 };
+
+/**
+ * @type {Record<string, unknown>}
+ */
+const processInfo = {};
+
+function collectMemoryStats() {
+  const mem = process.memoryUsage();
+  Object.assign(processInfo, {
+    'process.memory_rss': mem.rss,
+    'process.memory_heap_used': mem.heapUsed,
+    'process.memory_heap_total': mem.heapTotal,
+    'process.memory_external': mem.external,
+    'process.memory_array_buffers': mem.arrayBuffers,
+  });
+}
+
+collectMemoryStats();
+setInterval(collectMemoryStats, 10000).unref();

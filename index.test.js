@@ -58,6 +58,7 @@ it('configures honeycomb for sending events', async () => {
 
   const trace = beeline.startTrace({ field: 'value' }, 'trace1', 'parent1');
   if (trace) beeline.finishTrace(trace);
+  await beeline.flush();
 
   const call = await callP;
 
@@ -73,6 +74,8 @@ it('configures honeycomb for sending events', async () => {
         'service.process': 'http',
         app_sha: 'beefdad',
         global: 'fields',
+        'process.uptime_s': expect.any(Number),
+        'process.memory_rss': expect.any(Number),
       },
     },
   ]);
