@@ -47,6 +47,7 @@ module.exports = function setup(name, gitSha, options, processType = 'http') {
       ev.data.app_sha = gitSha;
       ev.data['service.process'] = processType;
       ev.data['process.uptime_s'] = Math.round(process.uptime());
+      ev.data['process.pid'] = process.pid;
 
       Object.entries(globalMetadata).forEach(([k, v]) => {
         ev.data[k] = v;
