@@ -6,6 +6,7 @@ const { URL } = require('url');
 
 const selfsigned = require('selfsigned');
 const tracker = require('honeycomb-beeline/lib/async_tracker');
+const assert = require('assert');
 
 function newMockContext() {
   return { id: 0, spanId: 50000, stack: [] };
@@ -66,7 +67,7 @@ function handler(req, res) {
 
 beforeAll(async () => {
   server = http.createServer(handler);
-  await new Promise(done => server.listen(0, 'localhost', () => done(0)));
+  await new Promise(done => server.listen(0, '127.0.0.1', () => done(0)));
   const addr = server.address();
   if (addr && typeof addr == 'object') {
     port = addr.port;
@@ -447,13 +448,12 @@ describe('https', () => {
   /** @type {number} */
   let tlsPort;
   beforeAll(async () => {
-    const { private: key, cert } = selfsigned.generate(null, { days: 1 });
+    const { private: key, cert } = await selfsigned.generate(undefined);
     tlsServer = https.createServer({ key, cert }, handler);
-    await new Promise(done => tlsServer.listen(0, 'localhost', () => done(0)));
+    await new Promise(done => tlsServer.listen(0, '127.0.0.1', () => done(0)));
     const addr = tlsServer.address();
-    if (addr && typeof addr == 'object') {
-      tlsPort = addr.port;
-    }
+    assert(addr && typeof addr == 'object');
+    tlsPort = addr.port;
   });
   afterAll(() => {
     tlsServer.close();
@@ -462,12 +462,14 @@ describe('https', () => {
   test('gets instrumented too', async () => {
     tracker.setTracked(newMockContext());
 
-    const res = await new Promise(resolve =>
-      https.get(
-        `https://localhost:${tlsPort}`,
-        { rejectUnauthorized: false },
-        resolve,
-      ),
+    const res = await new Promise((resolve, reject) =>
+      https
+        .get(
+          `https://127.0.0.1:${tlsPort}`,
+          { rejectUnauthorized: false },
+          resolve,
+        )
+        .on('error', reject),
     );
 
     expect(res.headers).toHaveProperty(
@@ -481,8 +483,8 @@ describe('https', () => {
         'request.scheme': 'https',
         'request.method': `GET`,
         'request.path': `/`,
-        'request.host': `localhost`,
-        'request.url': `https://localhost:${tlsPort}/`,
+        'request.host': `127.0.0.1`,
+        'request.url': `https://127.0.0.1:${tlsPort}/`,
       },
     ]);
   });
