@@ -18,7 +18,8 @@
   },
   "devDependencies": {
     "@types/body": "^5.1.1",
-    "@types/jest": "^27.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.0",
     "@types/shimmer": "^1.0.2",
     "body": "^5.1.0",
     "eslint": "^8.3.0",
@@ -29,7 +30,7 @@
     "jest-junit": "^17.0.0",
     "prettier": "^2.5.0",
     "selfsigned": "^5.5.0",
-    "typescript": "^4.5.2",
+    "typescript": "^6.0.3",
     "typescript-xunit-xml": "^1.0.0"
   },
   "dependencies": {
