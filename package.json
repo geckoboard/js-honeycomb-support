@@ -26,7 +26,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "honeycomb-beeline": "^4.2.0",
     "jest": "^30.4.2",
-    "jest-junit": "^13.0.0",
+    "jest-junit": "^17.0.0",
     "prettier": "^2.5.0",
     "selfsigned": "^5.5.0",
     "typescript": "^4.5.2",
