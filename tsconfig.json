@@ -8,6 +8,7 @@
     "checkJs": true,
     "noEmit": true,
     "isolatedModules": true,
+    "types": ["node", "jest"],
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
