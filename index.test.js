@@ -1,4 +1,3 @@
-/* eslint-env jest */
 const http = require('http');
 const jsonBody = require('body/json');
 
